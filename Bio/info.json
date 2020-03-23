@@ -1,6 +1,6 @@
 {
     "author" : ["CrunchBangDev"],
-    "install_msg" : "You've just installed the Bio cog!\nUse `[p]bio` to see your bio and add information to your bio with `[p]bio [label] [information]`.\nUse `[p]bio @[user] to see someone else's bio.",
+    "install_msg" : "You've just installed the Bio cog!\nUse `[p]bio` to see your bio and add information to your bio with `[p]bio [label] [information]`.\nUse `[p]bio @[user]` to see someone else's bio.",
     "name" : "CBD-Cogs",
     "short" : "Add player bios",
     "description" : "Add information to your player bio and lookup information others have shared.",
