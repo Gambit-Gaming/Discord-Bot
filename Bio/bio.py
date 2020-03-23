@@ -94,5 +94,9 @@ class Bio(commands.Cog):
             # TODO: Pretty up this output
             await ctx.send(bioDict[key])
             bioDict = data
-        # TODO: Pretty up this output
-        await ctx.send(f"{bioDict}")
+        embed = discord.Embed()
+        embed.title = f"{_user}'s Bio'"
+        embed.set_thumbnail(url=_user.avatar_url)
+        for field, value in bioDict.items():
+            embed.add_field(name=field, value=value)
+        await ctx.send(embed)
