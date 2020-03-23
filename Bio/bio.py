@@ -72,9 +72,14 @@ class Bio(commands.Cog):
                 await ctx.send("Sorry, that bio field is not available.\n"
                                "Please request it from the server owner.")
                 return
-            bioDict[key] = " ".join(args)
-            await self.conf.user(user).bio.set(json.dumps(bioDict))
-            await ctx.send(f"{key} set to {bioDict[key]}")
+            if args:
+                bioDict[key] = " ".join(args)
+                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await ctx.send(f"{key} set to {bioDict[key]}")
+            else:
+                del bioDict[key]
+                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await ctx.send(f"{key} removed from bio")
             return
 
         # Filter dict to key(s)
