@@ -17,6 +17,7 @@ UNIQUE_ID = 0x62696F68617A617264
 
 class Bio(commands.Cog):
     def __init__(self, bot: bot.Red):
+        self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_user(bio='{}')
         self.conf.register_guild(biofields='{"fields": []}')
@@ -49,7 +50,7 @@ class Bio(commands.Cog):
                 memberBio = json.loads(conf.get("bio"))
                 if argField in memberBio.keys():
                     del memberBio[argField]
-                    await self.conf.user(member).bio.set(json.dumps(memberBio))
+                    await self.conf.user(self.bot.get_user(member)).bio.set(json.dumps(memberBio))
                     count += 1
             await ctx.send(f"Removed field '{argField}' from {count} bios")
 
