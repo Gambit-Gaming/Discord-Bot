@@ -24,7 +24,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @checks.admin()
+    @checks.admin_or_permissions(manage_guild=True)
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if not command:
