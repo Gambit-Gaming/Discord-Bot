@@ -69,7 +69,7 @@ class Bio(commands.Cog):
         bioDict = json.loads(await self.conf.user(_user).bio())
 
         # User is setting own bio
-        if key is not None and _user == ctx.author:
+        if key is not None and user is None:
             if key not in bioFields["fields"]:
                 await ctx.send("Sorry, that bio field is not available.\n"
                                "Please request it from the server owner.")
