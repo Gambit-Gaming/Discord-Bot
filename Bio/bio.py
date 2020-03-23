@@ -97,7 +97,7 @@ class Bio(commands.Cog):
                     await ctx.send(f"Field '{arg}' not found")
             bioDict = data
         embed = discord.Embed()
-        embed.title = f"{_user}'s Bio"
+        embed.title = f"{_user.display_name}'s Bio"
         embed.set_thumbnail(url=_user.avatar_url)
         for field, value in bioDict.items():
             embed.add_field(name=field, value=value)
