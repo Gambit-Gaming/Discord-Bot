@@ -22,16 +22,16 @@ class Bio(commands.Cog):
         self.conf.register_user(bio="{}")
 
     @commands.command()
-    async def bio(self, ctx: commands.Context, user = None, info: Optional = None):
+    async def bio(self, ctx: commands.Context, user = None, *args):
         key = None
         if not isinstance(user, discord.Member):
-            if user and info:
+            if user and args:
                 # Argument is a key to set, not a user
                 key = user
             user = ctx.author
-        bioDict = json.decodes(await self.conf.user(user).bio())
-        if key and info:
-            bioDict[key] = info
+        bioDict = json.loads(await self.conf.user(user).bio())
+        if key and args:
+            bioDict[key] = " ".join(args)
             await self.conf.user(user).bio.set(json.dumps(bioDict))
         else:
             await ctx.send(f"{bioDict}")
