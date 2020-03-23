@@ -99,4 +99,4 @@ class Bio(commands.Cog):
         embed.set_thumbnail(url=_user.avatar_url)
         for field, value in bioDict.items():
             embed.add_field(name=field, value=value)
-        await ctx.send(embed)
+        await ctx.send(embed=embed)
