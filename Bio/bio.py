@@ -78,9 +78,12 @@ class Bio(commands.Cog):
                 await self.conf.user(_user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"{key} set to {bioDict[key]}")
             else:
-                del bioDict[key]
+                try:
+                    del bioDict[key]
+                except KeyError:
+                    await ctx.send(f"Field '{key}' not found in your bio")
                 await self.conf.user(_user).bio.set(json.dumps(bioDict))
-                await ctx.send(f"{key} removed from bio")
+                await ctx.send(f"Field '{key}' removed from bio")
             return
 
         # Filter dict to key(s)
