@@ -74,11 +74,11 @@ class Bio(commands.Cog):
                 return
             if args:
                 bioDict[key] = " ".join(args)
-                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await self.conf.user(_user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"{key} set to {bioDict[key]}")
             else:
                 del bioDict[key]
-                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await self.conf.user(_user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"{key} removed from bio")
             return
 
