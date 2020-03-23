@@ -1,0 +1,9 @@
+{
+    "author" : ["CrunchBangDev"],
+    "install_msg" : "Thank you for choosing CrunchBangDev Cogs to help sate your terrible thirst for cogs.",
+    "name" : "CBD-Cogs",
+    "short" : "Got cogs?",
+    "description" : "Put this in your bot and smoke it",
+    "min_python_version": [3, 7, 2],
+	"tags": []
+}
