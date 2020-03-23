@@ -22,6 +22,7 @@ class Bio(commands.Cog):
         self.conf.register_guild(biofields='{"fields": []}')
 
     @commands.command()
+    @commands.guild_only()
     @checks.admin()
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
@@ -53,6 +54,7 @@ class Bio(commands.Cog):
             await ctx.send(f"Removed field '{argField}' from {count} bios")
 
     @commands.command()
+    @commands.guild_only()
     async def bio(self, ctx: commands.Context, user = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
