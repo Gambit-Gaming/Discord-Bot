@@ -82,6 +82,7 @@ class Bio(commands.Cog):
                     del bioDict[key]
                 except KeyError:
                     await ctx.send(f"Field '{key}' not found in your bio")
+                    return
                 await self.conf.user(_user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"Field '{key}' removed from bio")
             return
