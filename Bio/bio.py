@@ -60,7 +60,7 @@ class Bio(commands.Cog):
     async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
-        if user[0:3] == "<@!":
+        if str(user)[0:3] == "<@!":
             user = self.bot.get_user(int(user[3:-1])) or user
         if not isinstance(user, discord.Member):
             # Argument is a key to set, not a user
