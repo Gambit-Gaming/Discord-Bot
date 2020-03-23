@@ -34,7 +34,6 @@ class Bio(commands.Cog):
         if command == "add":
             bioFields["fields"].append(argField)
         elif command == "remove":
-            # TODO: Delete field from each user's bio
             try:
                 bioFields["fields"].remove(argField)
             except:
