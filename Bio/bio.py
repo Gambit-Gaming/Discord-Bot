@@ -61,24 +61,22 @@ class Bio(commands.Cog):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
         if str(user)[0:3] == "<@!":
-            user = self.bot.get_user(int(user[3:-1])) or user
-        if not isinstance(user, discord.Member):
+            user = self.bot.get_user(int(user[3:-1]))
+        if not isinstance(user, discord.abc.User):
             # Argument is a key to set, not a user
-            if user:
-                key = user
-                user = None
-        _user = user or ctx.author
-        bioDict = json.loads(await self.conf.user(_user).bio())
+            key = user
+            user = ctx.author
+        bioDict = json.loads(await self.conf.user(user).bio())
 
         # User is setting own bio
-        if key is not None:
+        if key is not None and user is ctx.author:
             if key not in bioFields["fields"]:
                 await ctx.send("Sorry, that bio field is not available.\n"
                                "Please request it from the server owner.")
                 return
             if args:
                 bioDict[key] = " ".join(args)
-                await self.conf.user(_user).bio.set(json.dumps(bioDict))
+                await self.conf.user(user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"Field '{key}' set to {bioDict[key]}")
             else:
                 try:
@@ -86,7 +84,7 @@ class Bio(commands.Cog):
                 except KeyError:
                     await ctx.send(f"Field '{key}' not found in your bio")
                     return
-                await self.conf.user(_user).bio.set(json.dumps(bioDict))
+                await self.conf.user(user).bio.set(json.dumps(bioDict))
                 await ctx.send(f"Field '{key}' removed from your bio")
             return
 
@@ -103,8 +101,8 @@ class Bio(commands.Cog):
                 await ctx.send("\n".join(warnings))
             bioDict = data
         embed = discord.Embed()
-        embed.title = f"{_user.display_name}'s Bio"
-        embed.set_thumbnail(url=_user.avatar_url)
+        embed.title = f"{user.display_name}'s Bio"
+        embed.set_thumbnail(url=user.avatar_url)
         for field, value in bioDict.items():
             embed.add_field(name=field, value=value)
         await ctx.send(embed=embed)
