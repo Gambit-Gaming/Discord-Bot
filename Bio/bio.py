@@ -3,7 +3,7 @@ import asyncio
 import json
 import logging
 from collections import namedtuple
-from typing import Optional
+from typing import Optional, Union
 
 import discord
 from redbot.core import checks, Config, commands, bot
@@ -57,9 +57,11 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bio(self, ctx: commands.Context, user: Optional[discord.Member] = None, *args):
+    async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
+        if user[0:3] == "<@!":
+            user = self.bot.get_user(int(user[3:-1])) or user
         if not isinstance(user, discord.Member):
             # Argument is a key to set, not a user
             if user:
@@ -69,7 +71,7 @@ class Bio(commands.Cog):
         bioDict = json.loads(await self.conf.user(_user).bio())
 
         # User is setting own bio
-        if key is not None and user is None:
+        if key is not None:
             if key not in bioFields["fields"]:
                 await ctx.send("Sorry, that bio field is not available.\n"
                                "Please request it from the server owner.")
