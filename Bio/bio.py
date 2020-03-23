@@ -6,7 +6,7 @@ from collections import namedtuple
 from typing import Optional
 
 import discord
-from redbot.core import Config, commands
+from redbot.core import Config, commands, bot
 
 log = logging.getLogger("red.cogs.bio")
 
@@ -17,7 +17,7 @@ MemberBio = namedtuple("MemberBio", "bio")
 
 
 class Bio(commands.Cog):
-    def __init__(self):
+    def __init__(self, bot: bot.Red):
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_user(bio="{}")
 
