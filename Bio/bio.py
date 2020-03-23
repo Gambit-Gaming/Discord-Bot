@@ -56,7 +56,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bio(self, ctx: commands.Context, user = None, *args):
+    async def bio(self, ctx: commands.Context, user: Optional[discord.Member] = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
         if not isinstance(user, discord.Member):
@@ -95,8 +95,6 @@ class Bio(commands.Cog):
                     data[arg] = bioDict[arg]
                 except:
                     await ctx.send(f"Field '{arg}' not found")
-            # TODO: Pretty up this output
-            await ctx.send(bioDict[key])
             bioDict = data
         embed = discord.Embed()
         embed.title = f"{_user}'s Bio"
