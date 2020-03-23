@@ -28,7 +28,8 @@ class Bio(commands.Cog):
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if not command:
-            await ctx.send("\n".join(bioFields["fields"]))
+            await ctx.send("Bio fields available:\n" + \
+                           "\n".join(bioFields["fields"]))
             return
         argField = " ".join(args)
         if command == "add":
