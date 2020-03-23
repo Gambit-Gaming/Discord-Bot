@@ -42,7 +42,7 @@ class Bio(commands.Cog):
         else:
             await ctx.send(f"Unknown command: {command}")
         await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
-        await ctx.send("Field '{argField}' has been {command[0:5]}ed")
+        await ctx.send(f"Field '{argField}' has been {command[0:5]}ed")
         if command == "remove":
             count = 0
             for member, conf in (await self.conf.all_users()).items():
