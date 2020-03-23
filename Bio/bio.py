@@ -42,6 +42,7 @@ class Bio(commands.Cog):
                 return
         else:
             await ctx.send(f"Unknown command: {command}")
+            return
         await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
         await ctx.send(f"Field '{argField}' has been {command[0:5]}ed")
         if command == "remove":
@@ -76,7 +77,7 @@ class Bio(commands.Cog):
             if args:
                 bioDict[key] = " ".join(args)
                 await self.conf.user(_user).bio.set(json.dumps(bioDict))
-                await ctx.send(f"{key} set to {bioDict[key]}")
+                await ctx.send(f"Field '{key}' set to {bioDict[key]}")
             else:
                 try:
                     del bioDict[key]
@@ -84,17 +85,20 @@ class Bio(commands.Cog):
                     await ctx.send(f"Field '{key}' not found in your bio")
                     return
                 await self.conf.user(_user).bio.set(json.dumps(bioDict))
-                await ctx.send(f"Field '{key}' removed from bio")
+                await ctx.send(f"Field '{key}' removed from your bio")
             return
 
         # Filter dict to key(s)
         elif user and len(args):
             data = {}
+            warnings = []
             for arg in args:
                 try:
                     data[arg] = bioDict[arg]
                 except:
-                    await ctx.send(f"Field '{arg}' not found")
+                    warnings.append(f"Field '{arg}' not found")
+            if len(warnings):
+                await ctx.send("\n".join(warnings))
             bioDict = data
         embed = discord.Embed()
         embed.title = f"{_user.display_name}'s Bio"
