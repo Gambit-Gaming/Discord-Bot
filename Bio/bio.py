@@ -117,7 +117,10 @@ class Bio(commands.Cog):
         embed.title = "Bio Search"
         for member, conf in (await self.conf.all_users()).items():
             memberBio = json.loads(conf.get("bio"))
-            values = [f"{x}: {y}" for x,y in memberBio.items() if x in args]
+            if len(args) > 1:
+                values = [f"{x}: {y}" for x,y in memberBio.items() if x in args]
+            else:
+                values = [y for x,y in memberBio.items() if x in args]
             if len(values):
                 try:
                     memberName = ctx.guild.get_member(int(member)).display_name
