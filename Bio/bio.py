@@ -109,3 +109,20 @@ class Bio(commands.Cog):
         for field, value in bioDict.items():
             embed.add_field(name=field, value=value)
         await ctx.send(embed=embed)
+    
+    @commands.command()
+    @commands.guild_only()
+    async def biosearch(self, ctx: commands.Context, *args):
+        embed = discord.Embed()
+        embed.title = "Bio Search"
+        for member, conf in (await self.conf.all_users()).items():
+            memberBio = json.loads(conf.get("bio"))
+            values = [f"{x}: {y}" for x,y in memberBio.items() if x in args]
+            if len(values):
+                try:
+                    memberName = ctx.guild.get_member(int(member)).display_name
+                except:
+                    continue
+                embed.add_field(name=memberName,
+                                value="\n".join(values))
+        await ctx.send(embed=embed)
