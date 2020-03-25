@@ -111,9 +111,9 @@ class Bio(commands.Cog):
         embed.title = f"{user.display_name}'s Bio"
         embed.set_thumbnail(url=user.avatar_url)
         for field, value in bioDict.items():
-            embed.add_field(name=field, value=value)
+            embed.add_field(name=field, value=value, inline=False)
         await ctx.send(embed=embed)
-    
+
     @commands.command()
     @commands.guild_only()
     async def biosearch(self, ctx: commands.Context, *args):
@@ -131,7 +131,8 @@ class Bio(commands.Cog):
                 except:
                     continue
                 embed.add_field(name=memberName,
-                                value="\n".join(values))
+                                value="\n".join(values),
+                                inline=False)
         await ctx.send(embed=embed)
 
     @commands.command()
