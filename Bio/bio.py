@@ -118,8 +118,14 @@ class Bio(commands.Cog):
         # User is setting own bio
         if key is not None and user is ctx.author:
             if key not in bioFields["fields"]:
-                await ctx.send("Sorry, that bio field is not available.\n"
-                               "Please request it from the server owner.")
+                keySwap = False
+                for field in bioFields["fields"]:
+                    if key.lower() == field.lower():
+                        key = field
+                        break
+                else:
+                    await ctx.send("Sorry, that bio field is not available.\n"
+                                   "Please request it from the server owner.")
                 return
             if args:
                 bioDict[key] = " ".join(args)
@@ -142,14 +148,18 @@ class Bio(commands.Cog):
             for arg in args:
                 try:
                     data[arg] = bioDict[arg]
-                except:
-                    warnings.append(f"Field '{arg}' not found")
-            if len(warnings):
-                await ctx.send("\n".join(warnings))
+                except KeyError:
+                    for field in bioFields["fields"]:
+                        if arg.lower() == field.lower():
+                            data[field] = bioDict[arg]
+                            break
+                    else:
+                        warnings.append(f"Field '{arg}' not found")
             bioDict = data
         embed = discord.Embed()
         embed.title = f"{user.display_name}'s Bio"
         embed.set_thumbnail(url=user.avatar_url)
+        embed.set_footer(text="\n".join(warnings))
         for field, value in bioDict.items():
             embed.add_field(name=field, value=value, inline=False)
         await ctx.send(embed=embed)
