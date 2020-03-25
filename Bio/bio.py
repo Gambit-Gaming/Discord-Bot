@@ -150,7 +150,7 @@ class Bio(commands.Cog):
                     data[arg] = bioDict[arg]
                 except KeyError:
                     for field in bioFields["fields"]:
-                        if arg.lower() == field.lower():
+                        if arg.lower() == field.lower() and field in bioDict.keys():
                             data[field] = bioDict[field]
                             break
                     else:
