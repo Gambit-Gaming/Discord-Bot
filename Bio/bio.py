@@ -26,7 +26,20 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
-        """Lists the available bio fields and allows adding and removing fields"""
+        """Lists the available bio fields and allows adding and removing fields
+        
+        Examples:
+        Display the available fields
+        `[p]biofields`
+        
+        Add the field 'foo' (must be admin!)
+        `[p]biofields add foo`
+        
+        Remove the field 'foo'
+        `[p]biofields remove foo`
+        
+        Users will only be able to set a field in their bio if it has been added to this list
+        """
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if not command:
             await ctx.send("Bio fields available:\n" + \
@@ -63,7 +76,32 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
-        """Display and modify your bio or view someone else's bio"""
+        """Display and modify your bio or view someone else's bio
+        
+        Examples:
+        Display your own bio
+        `[p]bio`
+        
+        Display your friend's bio
+        `[p]bio @friend`
+        
+        Display the 'foo' and 'bar' fields on your friend's bio
+        `[p]bio @friend foo bar`
+        
+        Note that fields with spaces in the name must be in quotes
+        `[p]bio @friend 'Three Word Field'`
+        
+        Set the 'foo' field on your bio to 'bar'
+        `[p]bio foo bar`
+        
+        Remove the 'foo' field from your bio
+        `[p]bio foo`
+        
+        Other commands to look into:
+        `[p]help biofields`
+        `[p]help biosearch`
+        `[p]help bioreset`
+        """
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
         if re.search(r'<@!\d+>', str(user)):
@@ -119,7 +157,15 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def biosearch(self, ctx: commands.Context, *args):
-        """Find field values across all users"""
+        """Find field values across all users
+        
+        Examples:
+        Search for a single field 'foo'
+        `[p]biosearch foo`
+        
+        Search for multiple fields 'foo', 'bar', and 'long name field'
+        `[p]biosearch foo bar 'long name field'`
+        """
         embed = discord.Embed()
         embed.title = "Bio Search"
         for member, conf in (await self.conf.all_users()).items():
@@ -141,7 +187,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def bioreset(self, ctx: commands.Context, *args):
-        """Reset your bio"""
+        """Reset your bio, erasing all content"""
         # Display bio before resetting it
         await self.bio(ctx)
         await self.conf.user(ctx.author).bio.set('{}')
