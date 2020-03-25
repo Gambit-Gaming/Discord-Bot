@@ -142,9 +142,9 @@ class Bio(commands.Cog):
             return
 
         # Filter dict to key(s)
+        warnings = []
         elif user and len(args):
             data = {}
-            warnings = []
             for arg in args:
                 try:
                     data[arg] = bioDict[arg]
