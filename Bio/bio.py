@@ -26,6 +26,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
+        """Lists the available bio fields and allows adding and removing fields"""
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if not command:
             await ctx.send("Bio fields available:\n" + \
@@ -62,6 +63,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
+        """Display and modify your bio or view someone else's bio"""
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
         if re.search(r'<@!\d+>', str(user)):
@@ -117,6 +119,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def biosearch(self, ctx: commands.Context, *args):
+        """Find field values across all users"""
         embed = discord.Embed()
         embed.title = "Bio Search"
         for member, conf in (await self.conf.all_users()).items():
@@ -138,6 +141,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def bioreset(self, ctx: commands.Context, *args):
+        """Reset your bio"""
         # Display bio before resetting it
         await self.bio(ctx)
         await self.conf.user(ctx.author).bio.set('{}')
