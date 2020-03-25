@@ -116,6 +116,7 @@ class Bio(commands.Cog):
         bioDict = json.loads(await self.conf.user(user).bio())
 
         # User is setting own bio
+        warnings = []
         if key is not None and user is ctx.author:
             if key not in bioFields["fields"]:
                 keySwap = False
@@ -142,7 +143,6 @@ class Bio(commands.Cog):
             return
 
         # Filter dict to key(s)
-        warnings = []
         elif user and len(args):
             data = {}
             for arg in args:
