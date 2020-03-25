@@ -127,7 +127,7 @@ class Bio(commands.Cog):
                 else:
                     await ctx.send("Sorry, that bio field is not available.\n"
                                    "Please request it from the server owner.")
-                return
+                    return
             if args:
                 bioDict[key] = " ".join(args)
                 await self.conf.user(user).bio.set(json.dumps(bioDict))
