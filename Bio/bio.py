@@ -103,7 +103,6 @@ class Bio(commands.Cog):
         `[p]help bioreset`
         """
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
-        fieldsLower = [x.lower() for x in bioFields["fields"]]
         key = None
         if re.search(r'<@!\d+>', str(user)):
             user = ctx.guild.get_member(int(user[3:-1]))
@@ -120,6 +119,7 @@ class Bio(commands.Cog):
         warnings = []
         if key is not None and user is ctx.author:
             if key not in bioFields["fields"]:
+                keySwap = False
                 for field in bioFields["fields"]:
                     if key.lower() == field.lower():
                         key = field
@@ -149,8 +149,10 @@ class Bio(commands.Cog):
                 try:
                     data[arg] = bioDict[arg]
                 except KeyError:
-                    if arg.lower() in fieldsLower:
-                        data[field] = bioDict[arg]
+                    for field in bioFields["fields"]:
+                        if arg.lower() == field.lower():
+                            data[field] = bioDict[arg]
+                            break
                     else:
                         warnings.append(f"Field '{arg}' not found")
             bioDict = data
