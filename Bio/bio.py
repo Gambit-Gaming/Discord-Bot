@@ -151,7 +151,7 @@ class Bio(commands.Cog):
                 except KeyError:
                     for field in bioFields["fields"]:
                         if arg.lower() == field.lower():
-                            data[field] = bioDict[arg]
+                            data[field] = bioDict[field]
                             break
                     else:
                         warnings.append(f"Field '{arg}' not found")
