@@ -166,14 +166,15 @@ class Bio(commands.Cog):
         Search for multiple fields 'foo', 'bar', and 'long name field'
         `[p]biosearch foo bar 'long name field'`
         """
+        argsLower = [x.lower() for x in args]
         embed = discord.Embed()
         embed.title = "Bio Search"
         for member, conf in (await self.conf.all_users()).items():
             memberBio = json.loads(conf.get("bio"))
             if len(args) > 1:
-                values = [f"{x}: {y}" for x,y in memberBio.items() if x in args]
+                values = [f"{x}: {y}" for x,y in memberBio.items() if x.lower() in argsLower]
             else:
-                values = [y for x,y in memberBio.items() if x in args]
+                values = [y for x,y in memberBio.items() if x.lower() in argsLower]
             if len(values):
                 try:
                     memberName = ctx.guild.get_member(int(member)).display_name
