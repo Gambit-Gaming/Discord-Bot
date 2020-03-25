@@ -25,13 +25,16 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
     async def biofields(self, ctx: commands.Context, command: str = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if not command:
             await ctx.send("Bio fields available:\n" + \
                            "\n".join(bioFields["fields"]))
             return
+        await self.add_remove_fields(ctx, bioFields, command, args)
+    
+    @checks.admin_or_permissions(manage_guild=True)
+    async def add_remove_fields(self, ctx: commands.Context, bioFields: dict, command: str, args):
         argField = " ".join(args)
         if command == "add":
             bioFields["fields"].append(argField)
