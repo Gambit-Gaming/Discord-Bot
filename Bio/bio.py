@@ -130,3 +130,11 @@ class Bio(commands.Cog):
                 embed.add_field(name=memberName,
                                 value="\n".join(values))
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def bioreset(self, ctx: commands.Context, *args):
+        # Display bio before resetting it
+        await self.bio(ctx)
+        await self.conf.user(ctx.author).bio.set('{}')
+        await ctx.send("Your bio has been reset")
