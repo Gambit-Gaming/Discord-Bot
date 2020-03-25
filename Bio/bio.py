@@ -75,7 +75,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
+    async def bio(self, ctx: commands.Context, userOrField: Optional[str] = None, *args):
         """Display and modify your bio or view someone else's bio
         
         Examples:
@@ -102,6 +102,9 @@ class Bio(commands.Cog):
         `[p]help biosearch`
         `[p]help bioreset`
         """
+        await self._bio(ctx, userOrField, *args)
+        
+    async def _bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
         if re.search(r'<@!\d+>', str(user)):
@@ -200,6 +203,6 @@ class Bio(commands.Cog):
     async def bioreset(self, ctx: commands.Context):
         """Reset your bio, erasing all content"""
         # Display bio before resetting it
-        await self.bio(ctx)
+        await self._bio(ctx)
         await self.conf.user(ctx.author).bio.set('{}')
         await ctx.send("Your bio has been reset")
