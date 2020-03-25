@@ -2,6 +2,7 @@
 import asyncio
 import json
 import logging
+import re
 from collections import namedtuple
 from typing import Optional, Union
 
@@ -60,7 +61,7 @@ class Bio(commands.Cog):
     async def bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         key = None
-        if str(user)[0:3] == "<@!":
+        if re.search(r'<@!\d+>', str(user)):
             user = ctx.guild.get_member(int(user[3:-1]))
             if not user:
                 await ctx.send("Unknown user")
