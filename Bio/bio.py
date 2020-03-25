@@ -197,7 +197,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bioreset(self, ctx: commands.Context, *args):
+    async def bioreset(self, ctx: commands.Context):
         """Reset your bio, erasing all content"""
         # Display bio before resetting it
         await self.bio(ctx)
