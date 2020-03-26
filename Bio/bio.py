@@ -17,7 +17,8 @@ UNIQUE_ID = 0x62696F68617A617264
 
 
 class Bio(commands.Cog):
-    def __init__(self, bot: bot.Red):
+    def __init__(self, bot: bot.Red, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_user(bio='{}')
