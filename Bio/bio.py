@@ -24,7 +24,7 @@ class Bio(commands.Cog):
         self.conf.register_user(bio='{}')
         self.conf.register_guild(biofields='{"fields": []}')
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(auto_help=False)
     @commands.guild_only()
     async def biofields(self, ctx: commands.Context):
         """
@@ -32,6 +32,8 @@ class Bio(commands.Cog):
         
         Users will only be able to set a field in their bio if it has been added to this list
         """
+        if ctx.invoked_subcommand is not None:
+            return
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         if len(bioFields["fields"]):
             await ctx.send("Bio fields available:\n" + \
