@@ -23,56 +23,66 @@ class Bio(commands.Cog):
         self.conf.register_user(bio='{}')
         self.conf.register_guild(biofields='{"fields": []}')
 
-    @commands.command()
+    @commands.group()
     @commands.guild_only()
-    async def biofields(self, ctx: commands.Context, command: str = None, *args):
-        """Lists the available bio fields and allows adding and removing fields
-        
-        Examples:
-        Display the available fields
-        `[p]biofields`
-        
-        Add the field 'foo' (must be admin!)
-        `[p]biofields add foo`
-        
-        Remove the field 'foo'
-        `[p]biofields remove foo`
+    async def biofields(self, ctx: commands.Context):
+        """
+        List the available bio fields
         
         Users will only be able to set a field in their bio if it has been added to this list
         """
         bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
-        if not command:
+        if len(bioFields["fields"]):
             await ctx.send("Bio fields available:\n" + \
-                           "\n".join(bioFields["fields"]))
-            return
-        await self.add_remove_fields(ctx, bioFields, command, args)
+                            "\n".join(bioFields["fields"]))
+        else:
+            await ctx.send("No bio fields available. Alert an admin!")
     
+    @biofields.command(name="add")
+    @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def add_remove_fields(self, ctx: commands.Context, bioFields: dict, command: str, args):
+    async def add_field(self, ctx: commands.Context, *args):
+        """Add fields to the list available for adding to bios"""
+        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
         argField = " ".join(args)
-        if command == "add":
-            bioFields["fields"].append(argField)
-        elif command == "remove":
-            try:
-                bioFields["fields"].remove(argField)
-            except:
+        for field in bioFields["fields"]:
+            if field.lower() == argField.lower():
+                await ctx.send(f"Field '{field}' already exists!")
+                return
+        bioFields["fields"].append(argField)
+        await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
+        await ctx.send(f"Field '{argField}' has been added")
+    
+    @biofields.command(name="remove")
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def remove_field(self, ctx:commands.Context, *args):
+        """
+        Remove fields from bios and make them unavailable
+        
+        USE WITH CAUTION!
+        """
+        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
+        argField = " ".join(args)
+        try:
+            bioFields["fields"].remove(argField)
+        except KeyError:
+            for field in bioFields["fields"]:
+                if field.lower() == argField.lower():
+                    bioFields["fields"].remove(field)
+                    break
+            else:
                 await ctx.send(f"No field named '{argField}'")
                 return
-        else:
-            await ctx.send(f"Unknown command: {command}")
-            return
-        bioFields["fields"] = list(set(bioFields["fields"]))
         await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
-        await ctx.send(f"Field '{argField}' has been {command[0:5]}ed")
-        if command == "remove":
-            count = 0
-            for member, conf in (await self.conf.all_users()).items():
-                memberBio = json.loads(conf.get("bio"))
-                if argField in memberBio.keys():
-                    del memberBio[argField]
-                    await self.conf.user(self.bot.get_user(member)).bio.set(json.dumps(memberBio))
-                    count += 1
-            await ctx.send(f"Removed field '{argField}' from {count} bios")
+        count = 0
+        for member, conf in (await self.conf.all_users()).items():
+            memberBio = json.loads(conf.get("bio"))
+            if argField in memberBio.keys():
+                del memberBio[argField]
+                await self.conf.user(self.bot.get_user(member)).bio.set(json.dumps(memberBio))
+                count += 1
+        await ctx.send(f"Removed field '{argField}' from {count} bios")
 
     @commands.command()
     @commands.guild_only()
