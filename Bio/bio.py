@@ -24,7 +24,7 @@ class Bio(commands.Cog):
         self.conf.register_user(bio='{}')
         self.conf.register_guild(biofields='{"fields": []}')
 
-    @commands.group(auto_help=False)
+    @commands.group(autohelp=False)
     @commands.guild_only()
     async def biofields(self, ctx: commands.Context):
         """
