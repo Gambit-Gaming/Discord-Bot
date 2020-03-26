@@ -61,6 +61,7 @@ class Bio(commands.Cog):
         else:
             await ctx.send(f"Unknown command: {command}")
             return
+        bioFields["fields"] = list(set(bioFields["fields"]))
         await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
         await ctx.send(f"Field '{argField}' has been {command[0:5]}ed")
         if command == "remove":
