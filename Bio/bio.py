@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import asyncio
-import json
 import logging
 import re
 from collections import namedtuple
