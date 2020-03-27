@@ -13,7 +13,7 @@ log = logging.getLogger("red.cogs.bio")
 
 __all__ = ["UNIQUE_ID", "Bio"]
 
-UNIQUE_ID = 0x62696F68617A617264
+UNIQUE_ID = 0x62696F68617A61726400
 
 
 class Bio(commands.Cog):
@@ -21,8 +21,8 @@ class Bio(commands.Cog):
         super().__init__(*args, **kwargs)
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
-        self.conf.register_user(bio='{}')
-        self.conf.register_guild(biofields='{"fields": []}')
+        self.conf.register_user(bio={})
+        self.conf.register_guild(biofields=[])
 
     @commands.group(autohelp=False)
     @commands.guild_only()
@@ -34,10 +34,10 @@ class Bio(commands.Cog):
         """
         if ctx.invoked_subcommand is not None:
             return
-        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
-        if len(bioFields["fields"]):
+        bioFields = await self.conf.guild(ctx.guild).biofields()
+        if len(bioFields):
             await ctx.send("Bio fields available:\n" + \
-                            "\n".join(bioFields["fields"]))
+                            "\n".join(bioFields))
         else:
             await ctx.send("No bio fields available. Alert an admin!")
     
@@ -46,14 +46,14 @@ class Bio(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def add_field(self, ctx: commands.Context, *args):
         """Add fields to the list available for adding to bios"""
-        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
+        bioFields = await self.conf.guild(ctx.guild).biofields()
         argField = " ".join(args)
-        for field in bioFields["fields"]:
+        for field in bioFields:
             if field.lower() == argField.lower():
                 await ctx.send(f"Field '{field}' already exists!")
                 return
-        bioFields["fields"].append(argField)
-        await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
+        bioFields.append(argField)
+        await self.conf.guild(ctx.guild).biofields.set(bioFields)
         await ctx.send(f"Field '{argField}' has been added")
     
     @biofields.command(name="remove")
@@ -65,25 +65,25 @@ class Bio(commands.Cog):
         
         USE WITH CAUTION!
         """
-        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
+        bioFields = await self.conf.guild(ctx.guild).biofields()
         argField = " ".join(args)
         try:
-            bioFields["fields"].remove(argField)
+            bioFields.remove(argField)
         except KeyError:
-            for field in bioFields["fields"]:
+            for field in bioFields:
                 if field.lower() == argField.lower():
-                    bioFields["fields"].remove(field)
+                    bioFields.remove(field)
                     break
             else:
                 await ctx.send(f"No field named '{argField}'")
                 return
-        await self.conf.guild(ctx.guild).biofields.set(json.dumps(bioFields))
+        await self.conf.guild(ctx.guild).biofields.set(bioFields)
         count = 0
         for member, conf in (await self.conf.all_users()).items():
-            memberBio = json.loads(conf.get("bio"))
+            memberBio = conf.get("bio")
             if argField in memberBio.keys():
                 del memberBio[argField]
-                await self.conf.user(self.bot.get_user(member)).bio.set(json.dumps(memberBio))
+                await self.conf.user(self.bot.get_user(member)).bio.set(memberBio)
                 count += 1
         await ctx.send(f"Removed field '{argField}' from {count} bios")
 
@@ -119,7 +119,7 @@ class Bio(commands.Cog):
         await self._bio(ctx, userOrField, *args)
         
     async def _bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
-        bioFields = json.loads(await self.conf.guild(ctx.guild).biofields())
+        bioFields = await self.conf.guild(ctx.guild).biofields()
         key = None
         if re.search(r'<@!\d+>', str(user)):
             user = ctx.guild.get_member(int(user[3:-1]))
@@ -130,14 +130,14 @@ class Bio(commands.Cog):
             # Argument is a key to set, not a user
             key = user
             user = ctx.author
-        bioDict = json.loads(await self.conf.user(user).bio())
+        bioDict = await self.conf.user(user).bio()
 
         # User is setting own bio
         warnings = []
         if key is not None and user is ctx.author:
-            if key not in bioFields["fields"]:
+            if key not in bioFields:
                 keySwap = False
-                for field in bioFields["fields"]:
+                for field in bioFields:
                     if key.lower() == field.lower():
                         key = field
                         break
@@ -147,7 +147,7 @@ class Bio(commands.Cog):
                     return
             if args:
                 bioDict[key] = " ".join(args)
-                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await self.conf.user(user).bio.set(bioDict)
                 await ctx.send(f"Field '{key}' set to {bioDict[key]}")
             else:
                 try:
@@ -155,7 +155,7 @@ class Bio(commands.Cog):
                 except KeyError:
                     await ctx.send(f"Field '{key}' not found in your bio")
                     return
-                await self.conf.user(user).bio.set(json.dumps(bioDict))
+                await self.conf.user(user).bio.set(bioDict)
                 await ctx.send(f"Field '{key}' removed from your bio")
             return
 
@@ -166,7 +166,7 @@ class Bio(commands.Cog):
                 try:
                     data[arg] = bioDict[arg]
                 except KeyError:
-                    for field in bioFields["fields"]:
+                    for field in bioFields:
                         if arg.lower() == field.lower() and field in bioDict.keys():
                             data[field] = bioDict[field]
                             break
@@ -197,7 +197,7 @@ class Bio(commands.Cog):
         embed = discord.Embed()
         embed.title = "Bio Search"
         for member, conf in (await self.conf.all_users()).items():
-            memberBio = json.loads(conf.get("bio"))
+            memberBio = conf.get("bio")
             if len(args) > 1:
                 values = [f"{x}: {y}" for x,y in memberBio.items() if x.lower() in argsLower]
             else:
@@ -211,12 +211,3 @@ class Bio(commands.Cog):
                                 value="\n".join(values),
                                 inline=False)
         await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.guild_only()
-    async def bioreset(self, ctx: commands.Context):
-        """Reset your bio, erasing all content"""
-        # Display bio before resetting it
-        await self._bio(ctx)
-        await self.conf.user(ctx.author).bio.set('{}')
-        await ctx.send("Your bio has been reset")
