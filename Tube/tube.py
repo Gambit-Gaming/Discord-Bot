@@ -164,12 +164,15 @@ class Tube(commands.Cog):
                         )
                     )
                 )
+                previous = subs[i].get("previous", False)
                 for entry in fetchedSubs[sub["id"]]["entries"][::-1]:
                     published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
                     if published > last_video_time + datetime.timedelta(seconds=1):
                         altered = True
                         subs[i]["previous"] = entry["published"]
-                        await self.bot.send_filtered(channel, content=entry["link"])
+                        # Prevent posting all the videos on the first run
+                        if previous:
+                            await self.bot.send_filtered(channel, content=entry["link"])
             if altered:
                 await self.conf.guild(guild).subscriptions.set(subs)
 
