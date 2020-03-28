@@ -164,7 +164,7 @@ class Tube(commands.Cog):
                         )
                     )
                 )
-                previous = subs[i].get("previous", False)
+                previous = sub.get("previous", False)
                 for entry in fetchedSubs[sub["id"]]["entries"][::-1]:
                     published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
                     if published > last_video_time + datetime.timedelta(seconds=1):
