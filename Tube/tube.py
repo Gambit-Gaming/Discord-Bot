@@ -107,9 +107,11 @@ class Tube(commands.Cog):
 
     @commands.guild_only()
     @tube.command(name="list")
-    async def showsubs(self, ctx: commands.Context, guild: discord.Guild = None):
+    async def showsubs(self, ctx: commands.Context):
         """List current subscriptions"""
-        guild = guild or ctx.guild
+        await self._showsubs(ctx, ctx.guild)
+
+    async def _showsubs(self, ctx: commands.Context, guild: discord.Guild):
         subs = await self.conf.guild(guild).subscriptions()
         if not len(subs):
             await ctx.send("No subscriptions yet - try adding some!")
@@ -133,7 +135,7 @@ class Tube(commands.Cog):
     @tube.command(name="ownerlist", hidden=True)
     async def owner_list(self, ctx: commands.Context):
         for guild in self.bot.guilds:
-            await self.showsubs(ctx)
+            await self._showsubs(ctx, guild)
 
     def sub_uid(self, subscription: dict):
         """A subscription must have a unique combination of YouTube channel ID and Discord channel"""
