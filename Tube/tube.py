@@ -232,5 +232,5 @@ class Tube(commands.Cog):
 
     async def bg_loop(self):
         await self.bot.wait_until_ready()
-        while await asyncio.sleep(self.conf.interval(), True):
+        while await asyncio.sleep(await self.conf.interval(), True):
             await self._get_new_videos()
