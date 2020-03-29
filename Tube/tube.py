@@ -70,6 +70,12 @@ class Tube(commands.Cog):
             if sub['uid'] == newSub['uid']:
                 await ctx.send("This subscription already exists!")
                 return
+        feed = feedparser.parse(await self.get_feed(sub["id"]))
+        last_video = None
+        for entry in feed["entries"]:
+            if last_video is None or entry["published_parsed"] > last_video["published_parsed"]:
+                last_video = entry
+        newSub["previous"] = last_video["published"]
         subs.append(newSub)
         await self.conf.guild(ctx.guild).subscriptions.set(subs)
         await ctx.send(f"Subscription added: {newSub}")
@@ -190,18 +196,23 @@ class Tube(commands.Cog):
                     )
                 )
             )
-            previous = sub.get("previous", False)
             for entry in cache[sub["id"]]["entries"][::-1]:
                 published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
                 if published > last_video_time + datetime.timedelta(seconds=1):
                     altered = True
                     subs[i]["previous"] = entry["published"]
                     # Prevent posting all the videos on the first run
-                    if previous:
-                        await self.bot.send_filtered(channel, content=entry["link"])
+                    await self.bot.send_filtered(channel, content=entry["link"])
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
         return cache
+
+    @checks.is_owner()
+    @tube.command(name="setinterval", hidden=True)
+    async def set_interval(self, ctx: commands.Context, interval: int):
+        await self.conf.interval.set(interval)
+        interval = await self.conf.interval()
+        await ctx.send(f"Interval set to {interval}")
 
     async def get_feed(self, channel):
         """Fetch data from a feed"""
@@ -221,5 +232,5 @@ class Tube(commands.Cog):
 
     async def bg_loop(self):
         await self.bot.wait_until_ready()
-        while await asyncio.sleep(300, True):
+        while await asyncio.sleep(self.conf.interval(), True):
             await self._get_new_videos()
