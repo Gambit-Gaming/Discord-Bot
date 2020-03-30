@@ -211,8 +211,7 @@ class Tube(commands.Cog):
     @tube.command(name="setinterval", hidden=True)
     async def set_interval(self, ctx: commands.Context, interval: int):
         await self.conf.interval.set(interval)
-        interval = await self.conf.interval()
-        await ctx.send(f"Interval set to {interval}")
+        await ctx.send(f"Interval set to {await self.conf.interval()}")
 
     async def get_feed(self, channel):
         """Fetch data from a feed"""
@@ -231,6 +230,11 @@ class Tube(commands.Cog):
         asyncio.create_task(self.session.close())
 
     async def bg_loop(self):
-        await self.bot.wait_until_ready()
+        await self.bot.wait_until_red_ready()
         while await asyncio.sleep(await self.conf.interval(), True):
-            await self._get_new_videos()
+            fetched = {}
+            for guild in self.bot.guilds:
+                update = await self._get_new_videos(guild, fetched)
+                if not update:
+                    continue
+                fetched.update(update)
