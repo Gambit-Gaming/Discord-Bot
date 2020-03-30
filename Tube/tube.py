@@ -202,7 +202,13 @@ class Tube(commands.Cog):
                     altered = True
                     subs[i]["previous"] = entry["published"]
                     # Prevent posting all the videos on the first run
-                    await self.bot.send_filtered(channel, content=entry["link"])
+                    if channel.permissions_for(guild.me).embed_links:
+                        await self.bot.send_filtered(channel, content=entry["link"])
+                    else:
+                        await self.bot.send_filtered(channel,
+                                                     content=(f"New video from *{entry['author']}*:"
+                                                              f"\n**{entry['title']}**"
+                                                              f"\n{entry['link']}"))
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
         return cache
