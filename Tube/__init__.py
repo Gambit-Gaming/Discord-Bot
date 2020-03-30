@@ -2,4 +2,6 @@
 from .tube import Tube
 
 async def setup(bot):
-    bot.add_cog(Tube(bot))
+    cog = Tube(bot)
+    bot.add_cog(cog)
+    cog.init()
