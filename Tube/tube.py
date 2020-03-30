@@ -43,7 +43,7 @@ class Tube(commands.Cog):
             except asyncio.InvalidStateError as e:
                 log.exception("Callback state invalid: ", exc_info=e)
             except Exception as e:
-                log.exception("Unexpected exception in rss: ", exc_info=e)
+                log.exception("Unhandled exception: ", exc_info=e)
 
         self.bg_loop_task.add_done_callback(done_callback)
 
