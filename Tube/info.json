@@ -6,8 +6,7 @@
     "description" : "Posts in a channel every time a new video is added to a YouTube channel.",
     "required_cogs": {},
     "requirements": [
-        "feedparser",
-        "requests"
+        "feedparser"
     ],
     "min_bot_version": "3.1.8",
     "max_bot_version": "0.0.0",
