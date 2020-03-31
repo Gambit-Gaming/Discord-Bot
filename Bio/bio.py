@@ -8,7 +8,7 @@ from typing import Optional, Union
 import discord
 from redbot.core import checks, Config, commands, bot
 
-log = logging.getLogger("red.cogs.bio")
+log = logging.getLogger("red.cbd-cogs.bio")
 
 __all__ = ["UNIQUE_ID", "Bio"]
 

@@ -11,7 +11,7 @@ from urllib.request import Request, urlopen
 import discord
 from redbot.core import Config, bot, checks, commands
 
-log = logging.getLogger("red.cogs.scrub")
+log = logging.getLogger("red.cbd-cogs.scrub")
 
 __all__ = ["UNIQUE_ID", "Scrub"]
 

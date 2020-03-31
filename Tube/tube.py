@@ -13,7 +13,7 @@ from typing import Optional
 
 from redbot.core import Config, bot, checks, commands
 
-log = logging.getLogger("red.cogs.tube")
+log = logging.getLogger("red.cbd-cogs.tube")
 
 __all__ = ["UNIQUE_ID", "Tube"]
 
