@@ -92,5 +92,5 @@ class Scrub(commands.Cog):
         if not len(cleaned_links):
             return
         plural = 'is' if len(cleaned_links) == 1 else 'ese'
-        response = f"I scrubbed th{plural} for you:\n" + "\n".join(cleaned_links)
+        response = f"I scrubbed th{plural} for you:\n" + "\nhttps://".join(cleaned_links)
         await self.bot.send_filtered(message.channel, content=response)
