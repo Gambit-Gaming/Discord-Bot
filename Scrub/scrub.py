@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import aiohttp
 import asyncio
 import json
 import logging
@@ -6,7 +7,6 @@ import re
 from collections import namedtuple
 from typing import Optional, Union
 from urllib.parse import parse_qsl, unquote, urlencode, urlparse, urlunparse
-from urllib.request import Request, urlopen
 
 import discord
 from redbot.core import Config, bot, checks, commands
@@ -24,10 +24,10 @@ class Scrub(commands.Cog):
         super().__init__(*args, **kwargs)
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
-        self.conf.register_global(rules={})
+        self.conf.register_global(rules={}, url='https://gitlab.com/KevinRoebert/ClearUrls/raw/master/data/data.min.json')
 
-    def clean_url(self, url):
-        """Clean the given URL with the loaded rules data.
+    def clean_url(self, url, rules):
+        """Clean the given URL with the provided rules data.
         The format of `rules` is the parsed JSON found in ClearURLs's
         [`data.min.json`](https://gitlab.com/KevinRoebert/ClearUrls/blob/master/data/data.min.json)
         file.
@@ -35,7 +35,7 @@ class Scrub(commands.Cog):
         redirection patterns, will cause the URL to be replaced with the
         match's first matched group.
         """
-        for provider in self.rules['providers'].values():
+        for provider in rules.get('providers', {}).values():
             if not re.match(provider['urlPattern'], url, re.IGNORECASE):
                 continue
             if any(
@@ -75,18 +75,11 @@ class Scrub(commands.Cog):
     async def on_message(self, message):
         rules = await self.conf.rules()
         if rules == {}:
-            log.debug('Downloading rules data')
-            request = Request(
-                'https://gitlab.com/KevinRoebert/ClearUrls/raw/master/data/data.min.json',
-                headers={'User-Agent': 'Red Scrubber (python urllib)'}
-            )
-            rules = json.loads(urlopen(request).read().decode())
-            await self.conf.rules.set(rules)
-        self.rules = rules
+            rules = await self.update()
         links = list(set(re.findall(r'https?://(\S+)', message.content)))
         cleaned_links = []
         for link in links:
-            cleaned_link = self.clean_url(link)
+            cleaned_link = self.clean_url(link, rules)
             if link != cleaned_link:
                 cleaned_links.append(cleaned_link)
         if not len(cleaned_links):
@@ -94,3 +87,32 @@ class Scrub(commands.Cog):
         plural = 'is' if len(cleaned_links) == 1 else 'ese'
         response = f"I scrubbed th{plural} for you:\n" + "\n".join([f"https://{link}" for link in cleaned_links])
         await self.bot.send_filtered(message.channel, content=response)
+
+    @commands.command(name="scrubupdate")
+    @checks.is_owner()
+    async def scrub_update(self, ctx: commands.Context, url: str = None):
+        """Update Scrub with the latest rules
+        
+        By default, Scrub will get rules from https://gitlab.com/KevinRoebert/ClearUrls/raw/master/data/data.min.json
+        
+        This can be overridden by passing a `url` to this command with an alternative compatible rules file
+        """
+        confUrl = await self.conf.url()
+        _url = url or confUrl
+        try:
+            await self.update(_url)
+        except:
+            await ctx.send("Rules update failed")
+            raise
+            return
+        if _url != confUrl:
+            await self.conf.url.set(url)
+        await ctx.send("Rules updated")
+    
+    async def update(self, url):
+        log.debug('Downloading rules data')
+        session = aiohttp.ClientSession()
+        async with session.get(url) as request:
+            rules = json.loads(await request.read())
+        await session.close()
+        await self.conf.rules.set(rules)
