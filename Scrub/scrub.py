@@ -19,17 +19,19 @@ UNIQUE_ID = 0x7363727562626572
 
 
 class Scrub(commands.Cog):
-    """URL parsing and processing functions based on code from Uroute: https://github.com/walterl/uroute"""
+    """URL parsing and processing functions based on code from Uroute (https://github.com/walterl/uroute)
+    
+    By default, this cog uses the URL cleaning rules provided by ClearURLs (https://gitlab.com/KevinRoebert/ClearUrls)"""
     def __init__(self, bot: bot.Red, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
-        self.conf.register_global(rules={}, url='https://gitlab.com/KevinRoebert/ClearUrls/raw/master/data/data.min.json')
+        self.conf.register_global(rules={}, url='https://kevinroebert.gitlab.io/ClearUrls/data/data.min.json')
 
     def clean_url(self, url, rules):
         """Clean the given URL with the provided rules data.
         The format of `rules` is the parsed JSON found in ClearURLs's
-        [`data.min.json`](https://gitlab.com/KevinRoebert/ClearUrls/blob/master/data/data.min.json)
+        [`data.min.json`](https://kevinroebert.gitlab.io/ClearUrls/data/data.min.json)
         file.
         URLs matching a provider's `urlPattern` and one of that provider's
         redirection patterns, will cause the URL to be replaced with the
