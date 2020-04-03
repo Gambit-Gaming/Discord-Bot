@@ -10,7 +10,7 @@ Here are the Red commands to add this repository (use your bot's prefix in place
 [p]repo add CBD-Cogs https://gitlab.com/CrunchBangDev/cbd-cogs
 ```
 
-You may be prompted to respond to say "I agree" after that.
+You may be prompted to respond with "I agree" after that.
 
 
 ## Cogs
