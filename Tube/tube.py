@@ -30,7 +30,6 @@ class Tube(commands.Cog):
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_guild(subscriptions=[])
         self.conf.register_global(interval=300)
-        self.session = aiohttp.ClientSession()
         self.background_get_new_videos.start()
 
     @commands.group()
@@ -205,16 +204,24 @@ class Tube(commands.Cog):
         await self.conf.interval.set(interval)
         self.background_get_new_videos.change_interval(seconds=interval)
         await ctx.send(f"Interval set to {await self.conf.interval()}")
+    
+    async def fetch(self, session, url):
+        try:
+            async with session.get(url) as response:
+                return await response.read()
+        except aiohttp.client_exceptions.ClientConnectionError as e:
+            log.exception(f"Fetch failed for url {url}: ", exc_info=e)
+            return None
 
     async def get_feed(self, channel):
         """Fetch data from a feed"""
         timeout = aiohttp.client.ClientTimeout(total=5)
-        try:
-            async with self.session.get(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel}") as session:
-                res = await session.read()
-        except Exception as e:
-            log.exception(f"Failed to get feed for channel {channel}: ", exc_info=e)
-            return None
+        async with aiohttp.ClientSession() as session:
+            res = await self.fetch(
+                session,
+                content=(f"https://www.youtube.com/feeds/"
+                         f"videos.xml?channel_id={channel}")
+            )
         return res
 
     def cog_unload(self):
@@ -232,4 +239,5 @@ class Tube(commands.Cog):
     @background_get_new_videos.before_loop
     async def wait_for_red(self):
         await self.bot.wait_until_red_ready()
-        self.background_get_new_videos.change_interval(seconds=await self.conf.interval())
+        interval = await self.conf.interval()
+        self.background_get_new_videos.change_interval(seconds=interval)
