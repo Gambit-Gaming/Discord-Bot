@@ -219,8 +219,7 @@ class Tube(commands.Cog):
         async with aiohttp.ClientSession() as session:
             res = await self.fetch(
                 session,
-                content=(f"https://www.youtube.com/feeds/"
-                         f"videos.xml?channel_id={channel}")
+                f"https://www.youtube.com/feeds/videos.xml?channel_id={channel}"
             )
         return res
 
