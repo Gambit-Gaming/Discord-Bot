@@ -11,6 +11,7 @@ import feedparser
 
 from typing import Optional
 
+from discord.ext import tasks
 from redbot.core import Config, bot, checks, commands
 
 log = logging.getLogger("red.cbd-cogs.tube")
@@ -29,23 +30,7 @@ class Tube(commands.Cog):
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_guild(subscriptions=[])
         self.conf.register_global(interval=300)
-        self.session = aiohttp.ClientSession()
-        self.bg_loop_task: Optional[asyncio.Task] = None
-
-    def init(self):
-        self.bg_loop_task = asyncio.create_task(self.bg_loop())
-
-        def done_callback(future: asyncio.Future):
-            try:
-                future.exception()
-            except asyncio.CancelledError:
-                pass
-            except asyncio.InvalidStateError as e:
-                log.exception("Callback state invalid: ", exc_info=e)
-            except Exception as e:
-                log.exception("Unhandled exception: ", exc_info=e)
-
-        self.bg_loop_task.add_done_callback(done_callback)
+        self.background_get_new_videos.start()
 
     @commands.group()
     async def tube(self, ctx: commands.Context):
@@ -217,30 +202,42 @@ class Tube(commands.Cog):
     @tube.command(name="setinterval", hidden=True)
     async def set_interval(self, ctx: commands.Context, interval: int):
         await self.conf.interval.set(interval)
+        self.background_get_new_videos.change_interval(seconds=interval)
         await ctx.send(f"Interval set to {await self.conf.interval()}")
+    
+    async def fetch(self, session, url):
+        try:
+            async with session.get(url) as response:
+                return await response.read()
+        except aiohttp.client_exceptions.ClientConnectionError as e:
+            log.exception(f"Fetch failed for url {url}: ", exc_info=e)
+            return None
 
     async def get_feed(self, channel):
         """Fetch data from a feed"""
         timeout = aiohttp.client.ClientTimeout(total=5)
-        try:
-            async with self.session.get(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel}") as session:
-                res = await session.read()
-        except Exception as e:
-            log.exception(f"Failed to get feed for channel {channel}: ", exc_info=e)
-            return None
+        async with aiohttp.ClientSession() as session:
+            res = await self.fetch(
+                session,
+                content=(f"https://www.youtube.com/feeds/"
+                         f"videos.xml?channel_id={channel}")
+            )
         return res
 
     def cog_unload(self):
-        if self.bg_loop_task:
-            self.bg_loop_task.cancel()
-        asyncio.create_task(self.session.close())
+        self.background_get_new_videos.cancel()
 
-    async def bg_loop(self):
+    @tasks.loop(seconds=1)
+    async def background_get_new_videos(self):
+        fetched = {}
+        for guild in self.bot.guilds:
+            update = await self._get_new_videos(guild, fetched)
+            if not update:
+                continue
+            fetched.update(update)
+
+    @background_get_new_videos.before_loop
+    async def wait_for_red(self):
         await self.bot.wait_until_red_ready()
-        while await asyncio.sleep(await self.conf.interval(), True):
-            fetched = {}
-            for guild in self.bot.guilds:
-                update = await self._get_new_videos(guild, fetched)
-                if not update:
-                    continue
-                fetched.update(update)
+        interval = await self.conf.interval()
+        self.background_get_new_videos.change_interval(seconds=interval)
