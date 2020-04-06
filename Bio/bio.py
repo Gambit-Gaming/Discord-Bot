@@ -39,7 +39,7 @@ class Bio(commands.Cog):
                             "\n".join(bioFields))
         else:
             await ctx.send("No bio fields available. Alert an admin!")
-    
+
     @biofields.command(name="add")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -54,7 +54,7 @@ class Bio(commands.Cog):
         bioFields.append(argField)
         await self.conf.guild(ctx.guild).biofields.set(bioFields)
         await ctx.send(f"Field '{argField}' has been added")
-    
+
     @biofields.command(name="remove")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -88,7 +88,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bio(self, ctx: commands.Context, userOrField: Optional[str] = None, *args):
+    async def bio(self, ctx: commands.Context, userOrField: Optional[str] = None, *fields):
         """Display and modify your bio or view someone else's bio
         
         Examples:
@@ -115,8 +115,8 @@ class Bio(commands.Cog):
         `[p]help biosearch`
         `[p]help bioreset`
         """
-        await self._bio(ctx, userOrField, *args)
-        
+        await self._bio(ctx, userOrField, *fields)
+
     async def _bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = await self.conf.guild(ctx.guild).biofields()
         key = None
