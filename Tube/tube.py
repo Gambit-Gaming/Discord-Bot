@@ -22,10 +22,10 @@ UNIQUE_ID = 0x547562756c6172
 
 
 class Tube(commands.Cog):
+    """A YouTube subscription cog
+    
+    Thanks to mikeshardmind(Sinbad) for the RSS cog as reference"""
     def __init__(self, bot: bot.Red):
-        """A YouTube subscription cog
-        
-        Thanks to mikeshardmind(Sinbad) for the RSS cog as reference"""
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
         self.conf.register_guild(subscriptions=[])
@@ -125,6 +125,7 @@ class Tube(commands.Cog):
     @checks.is_owner()
     @tube.command(name="ownerlist", hidden=True)
     async def owner_list(self, ctx: commands.Context):
+        """List current subscriptions for all guilds"""
         for guild in self.bot.guilds:
             await self._showsubs(ctx, guild)
 
@@ -147,6 +148,7 @@ class Tube(commands.Cog):
     @checks.is_owner()
     @tube.command(name="ownerupdate", hidden=True)
     async def owner_get_new_videos(self, ctx: commands.Context):
+        """Update feeds and post new videos for all guilds"""
         fetched = {}
         for guild in self.bot.guilds:
             await ctx.send(f"Updating subscriptions for {guild}")
@@ -201,6 +203,11 @@ class Tube(commands.Cog):
     @checks.is_owner()
     @tube.command(name="setinterval", hidden=True)
     async def set_interval(self, ctx: commands.Context, interval: int):
+        """Set the interval in seconds at which to check for updates
+        
+        Very low values will probably get you rate limited
+        
+        Default is 300 seconds (5 minutes)"""
         await self.conf.interval.set(interval)
         self.background_get_new_videos.change_interval(seconds=interval)
         await ctx.send(f"Interval set to {await self.conf.interval()}")
@@ -215,7 +222,6 @@ class Tube(commands.Cog):
 
     async def get_feed(self, channel):
         """Fetch data from a feed"""
-        timeout = aiohttp.client.ClientTimeout(total=5)
         async with aiohttp.ClientSession() as session:
             res = await self.fetch(
                 session,

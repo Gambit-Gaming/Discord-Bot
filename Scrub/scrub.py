@@ -17,9 +17,13 @@ __all__ = ["UNIQUE_ID", "Scrub"]
 
 UNIQUE_ID = 0x7363727562626572
 
+URL_PATTERN = re.compile(r'https?://(\S+)')
+
 
 class Scrub(commands.Cog):
-    """URL parsing and processing functions based on code from Uroute (https://github.com/walterl/uroute)
+    """Applies a set of rules to remove undesireable elements from hyperlinks
+    
+    URL parsing and processing functions based on code from Uroute (https://github.com/walterl/uroute)
     
     By default, this cog uses the URL cleaning rules provided by ClearURLs (https://gitlab.com/KevinRoebert/ClearUrls)"""
     def __init__(self, bot: bot.Red, *args, **kwargs):
@@ -78,7 +82,7 @@ class Scrub(commands.Cog):
         rules = await self.conf.rules()
         if rules == {}:
             rules = await self.update()
-        links = list(set(re.findall(r'https?://(\S+)', message.content)))
+        links = list(set(URL_PATTERN.findall(message.content)))
         cleaned_links = []
         for link in links:
             cleaned_link = self.clean_url(link, rules)

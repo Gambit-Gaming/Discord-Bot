@@ -16,6 +16,9 @@ UNIQUE_ID = 0x62696F68617A61726400
 
 
 class Bio(commands.Cog):
+    """Add information to your player bio and lookup information others have shared.
+    
+    See `[p]help bio` for detailed usage informaiton."""
     def __init__(self, bot: bot.Red, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
@@ -26,16 +29,14 @@ class Bio(commands.Cog):
     @commands.group(autohelp=False)
     @commands.guild_only()
     async def biofields(self, ctx: commands.Context):
-        """
-        List the available bio fields
+        """List the available bio fields
         
-        Users will only be able to set a field in their bio if it has been added to this list
-        """
+        Users will only be able to set a field in their bio if it has been added to this list"""
         if ctx.invoked_subcommand is not None:
             return
         bioFields = await self.conf.guild(ctx.guild).biofields()
         if len(bioFields):
-            await ctx.send("Bio fields available:\n" + \
+            await ctx.send("Bio fields available:\n"
                             "\n".join(bioFields))
         else:
             await ctx.send("No bio fields available. Alert an admin!")
@@ -43,10 +44,9 @@ class Bio(commands.Cog):
     @biofields.command(name="add")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def add_field(self, ctx: commands.Context, *args):
+    async def add_field(self, ctx: commands.Context, *, argField: str):
         """Add fields to the list available for adding to bios"""
         bioFields = await self.conf.guild(ctx.guild).biofields()
-        argField = " ".join(args)
         for field in bioFields:
             if field.lower() == argField.lower():
                 await ctx.send(f"Field '{field}' already exists!")
@@ -59,11 +59,9 @@ class Bio(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def remove_field(self, ctx:commands.Context, *args):
-        """
-        Remove fields from bios and make them unavailable
+        """Remove fields from bios and make them unavailable (DANGER!)
         
-        USE WITH CAUTION!
-        """
+        USE WITH CAUTION: There is no way to restore deleted fields!"""
         bioFields = await self.conf.guild(ctx.guild).biofields()
         argField = " ".join(args)
         try:
