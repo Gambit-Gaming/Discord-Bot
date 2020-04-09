@@ -154,6 +154,13 @@ class Tube(commands.Cog):
         await ctx.send(f"Updating subscriptions for {ctx.message.guild}")
         await self._get_new_videos(ctx.message.guild, ctx=ctx)
 
+    @checks.admin_or_permissions(manage_guild=True)
+    @commands.guild_only()
+    @tube.command()
+    async def demo(self, ctx: commands.Context):
+        """Post the latest video from all subscriptions"""
+        await self._get_new_videos(ctx.message.guild, ctx=ctx, demo=True)
+
     @checks.is_owner()
     @tube.command(name="ownerupdate", hidden=True)
     async def owner_get_new_videos(self, ctx: commands.Context):
@@ -166,15 +173,13 @@ class Tube(commands.Cog):
                 continue
             fetched.update(update)
 
-    async def _get_new_videos(self, guild: discord.Guild, cache: dict = {}, ctx: commands.Context = None):
+    async def _get_new_videos(self, guild: discord.Guild, cache: dict = {}, ctx: commands.Context = None, demo: bool = False):
         try:
             subs = await self.conf.guild(guild).subscriptions()
         except:
             return
         altered = False
         for i, sub in enumerate(subs):
-            if ctx:
-                await ctx.send(f"{sub['id']}")
             channel = self.bot.get_channel(int(sub["channel"]["id"]))
             if not channel:
                 continue
@@ -194,7 +199,7 @@ class Tube(commands.Cog):
             )
             for entry in cache[sub["id"]]["entries"][::-1]:
                 published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
-                if published > last_video_time + datetime.timedelta(seconds=1):
+                if published > last_video_time + datetime.timedelta(seconds=1) or (demo and published > last_video_time - datetime.timedelta(seconds=1)):
                     altered = True
                     subs[i]["previous"] = entry["published"]
                     # Prevent posting all the videos on the first run
