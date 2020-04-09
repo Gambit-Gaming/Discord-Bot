@@ -43,7 +43,16 @@ class Tube(commands.Cog):
     async def subscribe(self, ctx: commands.Context, channelYouTube, channelDiscord: discord.TextChannel = None):
         """Subscribe a Discord channel to a YouTube channel
         
-        If no discord channel is specified, the current channel will be subscribed"""
+        If no discord channel is specified, the current channel will be subscribed
+        
+        Adding channels by name is not supported at this time. The YouTube channel ID for this can be found in channel links on videos.
+        
+        For example, to subscribe to the channel Ctrl Shift Face, you would search YouTube for the name, then on one of the videos in the results copy the channel link. It should look like this:
+        https://www.youtube.com/channel/UCKpH0CKltc73e4wh0_pgL3g
+        
+        Now take the last part of the link as the channel ID:
+        `[p]tube subscribe UCKpH0CKltc73e4wh0_pgL3g`
+        """
         if not channelDiscord:
             channelDiscord = ctx.channel
         subs = await self.conf.guild(ctx.guild).subscriptions()
