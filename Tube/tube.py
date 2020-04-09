@@ -55,7 +55,7 @@ class Tube(commands.Cog):
             if sub['uid'] == newSub['uid']:
                 await ctx.send("This subscription already exists!")
                 return
-        feed = feedparser.parse(await self.get_feed(sub["id"]))
+        feed = feedparser.parse(await self.get_feed(newSub['id']))
         last_video = None
         for entry in feed["entries"]:
             if last_video is None or entry["published_parsed"] > last_video["published_parsed"]:
