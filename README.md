@@ -32,6 +32,19 @@ Bio is basically a key/value store for each user where the allowed keys are dete
 | `biofields` | List the available bio fields |
 | `biosearch` | Find field values across all users |
 
+## Bookmark
+
+Allow users to use a reaction in order to bookmark messages for later review.
+
+Add a reaction to bookmark a message and remove the reaction to remove it from your bookmarks.
+
+### Commands
+
+| Command            | Description |
+| ------------------ | ----------- |
+| `bookmarks`        | Display your bookmarks |
+| `setbookmarkemoji` | Set the emoji to be used for bookmarking |
+
 ## Scrub
 
 Applies a set of rules to remove undesireable elements from hyperlinks such as campaign tracking tokens.
