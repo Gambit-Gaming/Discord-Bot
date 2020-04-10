@@ -70,6 +70,7 @@ class Tube(commands.Cog):
             if last_video is None or entry["published_parsed"] > last_video["published_parsed"]:
                 last_video = entry
         newSub["previous"] = last_video["published"]
+        newSub["name"] = last_video["author"]
         subs.append(newSub)
         await self.conf.guild(ctx.guild).subscriptions.set(subs)
         await ctx.send(f"Subscription added: {newSub}")
@@ -122,7 +123,7 @@ class Tube(commands.Cog):
         for sub in subs:
             channel = f'{sub["channel"]["name"]} ({sub["channel"]["id"]})'
             subs_by_channel[channel] = [
-                f"{sub['id']} - {sub.get('previous', 'Never')}",
+                f"{sub.get('name', sub['id'])} ({sub['id']}) - {sub.get('previous', 'Never')}",
                 *subs_by_channel.get(channel, [])
             ]
         for channel, sub_ids in subs_by_channel.items():
@@ -187,7 +188,7 @@ class Tube(commands.Cog):
                 try:
                     cache[sub["id"]] = feedparser.parse(await self.get_feed(sub["id"]))
                 except Exception as e:
-                    log.exception(f"Error parsing feed for {sub['id']}")
+                    log.exception(f"Error parsing feed for {sub.get('name', '')} ({sub['id']})")
                     continue
             last_video_time = datetime.datetime.fromtimestamp(
                 time.mktime(
@@ -199,6 +200,9 @@ class Tube(commands.Cog):
             )
             for entry in cache[sub["id"]]["entries"][::-1]:
                 published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
+                if not sub.get("name"):
+                    altered = True
+                    sub["name"] = entry["author"]
                 if published > last_video_time + datetime.timedelta(seconds=1) or (demo and published > last_video_time - datetime.timedelta(seconds=1)):
                     altered = True
                     subs[i]["previous"] = entry["published"]
