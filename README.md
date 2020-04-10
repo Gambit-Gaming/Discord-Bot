@@ -71,10 +71,10 @@ Posts in a channel every time a new video is added to a YouTube channel.
 
 | Command       | Description |
 | ------------- | ----------- |
-| `list`        | List current subscriptions |
-| `subscribe`   | Subscribe a Discord channel to a YouTube channel |
-| `unsubscribe` | Unsubscribe a Discord channel from a YouTube channel |
-| `update`      | Update feeds and post new videos |
+| `tube list`        | List current subscriptions |
+| `tube subscribe`   | Subscribe a Discord channel to a YouTube channel |
+| `tube unsubscribe` | Unsubscribe a Discord channel from a YouTube channel |
+| `tube update`      | Update feeds and post new videos |
 
 ### Credits
 
