@@ -1,6 +1,6 @@
 {
     "author" : ["CrunchBangDev"],
-    "install_msg" : "Thank you for choosing CrunchBangDev Cogs to help sate your terrible thirst for cogs.",
+    "install_msg" : "Thank you for choosing CrunchBangDev Cogs to help sate your terrible thirst for cogs.\nPlease note that, despite convention, all cog names in this repo are TitleCase.",
     "name" : "CBD-Cogs",
     "short" : "Got cogs?",
     "description" : "Put this in your bot and smoke it",
