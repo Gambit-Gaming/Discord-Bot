@@ -107,7 +107,7 @@ class Scrub(commands.Cog):
         cleaned_links = []
         for link in links:
             cleaned_link = self.clean_url(link, rules)
-            if link not in (cleaned_link, unquote(cleaned_link)):
+            if link.lower() not in (cleaned_link.lower(), unquote(cleaned_link).lower()):
                 cleaned_links.append(cleaned_link)
         if not len(cleaned_links):
             return
