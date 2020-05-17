@@ -65,12 +65,13 @@ class Tube(commands.Cog):
                 await ctx.send("This subscription already exists!")
                 return
         feed = feedparser.parse(await self.get_feed(newSub['id']))
-        last_video = None
+        last_video = {}
         for entry in feed["entries"]:
-            if last_video is None or entry["published_parsed"] > last_video["published_parsed"]:
+            if not last_video or entry["published_parsed"] > last_video["published_parsed"]:
                 last_video = entry
-        newSub["previous"] = last_video["published"]
-        newSub["name"] = last_video["author"]
+        if last_video and last_video.get("published"):
+            newSub["previous"] = last_video["published"]
+        newSub["name"] = feed["feed"]["title"]
         subs.append(newSub)
         await self.conf.guild(ctx.guild).subscriptions.set(subs)
         await ctx.send(f"Subscription added: {newSub}")
