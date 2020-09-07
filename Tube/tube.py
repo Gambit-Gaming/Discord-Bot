@@ -277,7 +277,6 @@ class Tube(commands.Cog):
             # Truncate video ID cache
             cache = await self.conf.guild(guild).cache()
             await self.conf.guild(guild).cache.set(cache[-cache_size:])
-        cache = await self.conf.cache()
 
     @background_get_new_videos.before_loop
     async def wait_for_red(self):
