@@ -28,8 +28,8 @@ class Tube(commands.Cog):
     def __init__(self, bot: bot.Red):
         self.bot = bot
         self.conf = Config.get_conf(self, identifier=UNIQUE_ID, force_registration=True)
-        self.conf.register_guild(subscriptions=[])
-        self.conf.register_global(interval=300)
+        self.conf.register_guild(subscriptions=[], cache=[])
+        self.conf.register_global(interval=300, cache_size=500)
         self.background_get_new_videos.start()
 
     @commands.group()
@@ -178,6 +178,7 @@ class Tube(commands.Cog):
     async def _get_new_videos(self, guild: discord.Guild, cache: dict = {}, ctx: commands.Context = None, demo: bool = False):
         try:
             subs = await self.conf.guild(guild).subscriptions()
+            history = await self.conf.guild(guild).cache()
         except:
             return
         altered = False
@@ -204,19 +205,21 @@ class Tube(commands.Cog):
                 if not sub.get("name"):
                     altered = True
                     sub["name"] = entry["author"]
-                if published > last_video_time + datetime.timedelta(seconds=1) or (demo and published > last_video_time - datetime.timedelta(seconds=1)):
+                if ((published > last_video_time and not entry["yt_videoid"] in history)
+                    or (demo and published > last_video_time - datetime.timedelta(seconds=1))):
                     altered = True
                     subs[i]["previous"] = entry["published"]
-                    # Prevent posting all the videos on the first run
+                    history.append(entry["yt_videoid"])
                     if channel.permissions_for(guild.me).embed_links:
                         await self.bot.send_filtered(channel, content=entry["link"])
                     else:
                         await self.bot.send_filtered(channel,
-                                                     content=(f"New video from *{entry['author']}*:"
-                                                              f"\n**{entry['title']}**"
-                                                              f"\n{entry['link']}"))
+                                                    content=(f"New video from *{entry['author']}*:"
+                                                            f"\n**{entry['title']}**"
+                                                            f"\n{entry['link']}"))
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
+            await self.conf.guild(guild).cache.set(history)
         return cache
 
     @checks.is_owner()
@@ -230,6 +233,17 @@ class Tube(commands.Cog):
         await self.conf.interval.set(interval)
         self.background_get_new_videos.change_interval(seconds=interval)
         await ctx.send(f"Interval set to {await self.conf.interval()}")
+
+    @checks.is_owner()
+    @tube.command(name="setcache", hidden=True)
+    async def set_cache(self, ctx: commands.Context, size: int):
+        """Set the number of video IDs to cache
+        
+        Very low values may result in reposting of videos
+        
+        Default is 500"""
+        await self.conf.cache_size.set(size)
+        await ctx.send(f"Cache size set to {await self.conf.cache_size()}")
     
     async def fetch(self, session, url):
         try:
@@ -254,11 +268,16 @@ class Tube(commands.Cog):
     @tasks.loop(seconds=1)
     async def background_get_new_videos(self):
         fetched = {}
+        cache_size = await self.conf.cache_size()
         for guild in self.bot.guilds:
             update = await self._get_new_videos(guild, fetched)
             if not update:
                 continue
             fetched.update(update)
+            # Truncate video ID cache
+            cache = await self.conf.guild(guild).cache()
+            await self.conf.guild(guild).cache.set(cache[-cache_size:])
+        cache = await self.conf.cache()
 
     @background_get_new_videos.before_loop
     async def wait_for_red(self):
