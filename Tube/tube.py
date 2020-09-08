@@ -13,6 +13,7 @@ from typing import Optional
 
 from discord.ext import tasks
 from redbot.core import Config, bot, checks, commands
+from redbot.core.utils.chat_formatting import pagify
 
 log = logging.getLogger("red.cbd-cogs.tube")
 
@@ -118,20 +119,42 @@ class Tube(commands.Cog):
         if not len(subs):
             await ctx.send("No subscriptions yet - try adding some!")
             return
-        embed = discord.Embed()
-        embed.title = "Tube Subs"
         subs_by_channel = {}
         for sub in subs:
-            channel = f'{sub["channel"]["name"]} ({sub["channel"]["id"]})'
+            # Channel entry must be max 124 chars: 103 + 2 + 18 + 1
+            channel = f'{sub["channel"]["name"][:103]} ({sub["channel"]["id"]})' # Max 124 chars
             subs_by_channel[channel] = [
-                f"{sub.get('name', sub['id'])} ({sub['id']}) - {sub.get('previous', 'Never')}",
+                # Sub entry must be max 100 chars: 45 + 2 + 24 + 4 + 25 = 100
+                f"{sub.get('name', sub['id'][:45])} ({sub['id']}) - {sub.get('previous', 'Never')}",
+                # Preserve previous entries
                 *subs_by_channel.get(channel, [])
             ]
-        for channel, sub_ids in subs_by_channel.items():
-            embed.add_field(name=channel,
-                            value="\n".join(sub_ids),
-                            inline=False)
-        await ctx.send(embed=embed)
+        if ctx.channel.permissions_for(guild.me).embed_links:
+            for channel, sub_ids in subs_by_channel.items():
+                page_count = (len(sub_ids) // 9) + 1
+                page = 1
+                while len(sub_ids) > 0:
+                    # Generate embed with max 1024 chars
+                    embed = discord.Embed()
+                    title = f"Tube Subs for {channel}"
+                    embed.description = "\n".join(sub_ids[0:9])
+                    if page_count > 1:
+                        title += f" ({page}/{page_count})"
+                    embed.title = title
+                    await ctx.send(embed=embed)
+                    del(sub_ids[0:9])
+        else:
+            subs_string = ""
+            for channel, sub_ids in subs_by_channel.items():
+                subs_string += f"\n\n{channel}"
+                for sub in sub_ids:
+                    subs_string += f"\n{sub}"
+            pages = pagify(subs_string, delims=["\n\n"], shorten_by=12)
+            for i, page in enumerate(pages):
+                title = "**Tube Subs**"
+                if len(pages) > 1:
+                    title += f" ({i}/{len(pages)}"
+                await ctx.send(f"{title}\n{page}")
 
     @checks.is_owner()
     @tube.command(name="ownerlist", hidden=True)
@@ -213,10 +236,9 @@ class Tube(commands.Cog):
                     if channel.permissions_for(guild.me).embed_links:
                         await self.bot.send_filtered(channel, content=entry["link"])
                     else:
-                        await self.bot.send_filtered(channel,
-                                                    content=(f"New video from *{entry['author']}*:"
-                                                            f"\n**{entry['title']}**"
-                                                            f"\n{entry['link']}"))
+                        description = (f"New video from *{entry['author'][:500]}*:"
+                                       f"\n**{entry['title'][:500]}**\n{entry['link']}")
+                        await self.bot.send_filtered(channel, content=description)
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
             await self.conf.guild(guild).cache.set(history)
