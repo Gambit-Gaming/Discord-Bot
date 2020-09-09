@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import datetime
+import re
 import time
 import hashlib
 import logging
@@ -20,6 +21,10 @@ log = logging.getLogger("red.cbd-cogs.tube")
 __all__ = ["UNIQUE_ID", "Tube"]
 
 UNIQUE_ID = 0x547562756c6172
+
+TIME_DEFAULT = "1970-01-01T00:00:00+00:00"
+# Time tuple for use with time.mktime()
+TIME_TUPLE = (*(int(x) for x in re.split("-|T|:|\+", TIME_DEFAULT)), 0)
 
 
 class Tube(commands.Cog):
@@ -224,7 +229,7 @@ class Tube(commands.Cog):
                 )
             )
             for entry in cache[sub["id"]]["entries"][::-1]:
-                published = datetime.datetime.fromtimestamp(time.mktime(entry["published_parsed"]))
+                published = datetime.datetime.fromtimestamp(time.mktime(entry.get("published_parsed", TIME_TUPLE)))
                 if not sub.get("name"):
                     altered = True
                     sub["name"] = entry["author"]
