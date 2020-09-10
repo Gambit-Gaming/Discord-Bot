@@ -145,6 +145,7 @@ class Tube(commands.Cog):
                     embed.description = "\n".join(sub_ids[0:9])
                     if page_count > 1:
                         title += f" ({page}/{page_count})"
+                        page += 1
                     embed.title = title
                     await ctx.send(embed=embed)
                     del(sub_ids[0:9])
