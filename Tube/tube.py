@@ -159,7 +159,7 @@ class Tube(commands.Cog):
             for i, page in enumerate(pages):
                 title = "**Tube Subs**"
                 if len(pages) > 1:
-                    title += f" ({i}/{len(pages)}"
+                    title += f" ({i}/{len(pages)})"
                 await ctx.send(f"{title}\n{page}")
 
     @checks.is_owner()
