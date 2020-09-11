@@ -210,6 +210,7 @@ class Tube(commands.Cog):
             history = await self.conf.guild(guild).cache()
         except:
             return
+        new_history = []
         altered = False
         for i, sub in enumerate(subs):
             channel = self.bot.get_channel(int(sub["channel"]["id"]))
@@ -238,7 +239,7 @@ class Tube(commands.Cog):
                     or (demo and published > last_video_time - datetime.timedelta(seconds=1))):
                     altered = True
                     subs[i]["previous"] = entry["published"]
-                    history.append(entry["yt_videoid"])
+                    new_history.append(entry["yt_videoid"])
                     if channel.permissions_for(guild.me).embed_links:
                         await self.bot.send_filtered(channel, content=entry["link"])
                     else:
@@ -247,7 +248,7 @@ class Tube(commands.Cog):
                         await self.bot.send_filtered(channel, content=description)
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
-            await self.conf.guild(guild).cache.set(history)
+            await self.conf.guild(guild).cache.set(*history, *new_history)
         return cache
 
     @checks.is_owner()
