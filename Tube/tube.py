@@ -248,7 +248,7 @@ class Tube(commands.Cog):
                         await self.bot.send_filtered(channel, content=description)
         if altered:
             await self.conf.guild(guild).subscriptions.set(subs)
-            await self.conf.guild(guild).cache.set(*history, *new_history)
+            await self.conf.guild(guild).cache.set(list(set(*history, *new_history)))
         return cache
 
     @checks.is_owner()
