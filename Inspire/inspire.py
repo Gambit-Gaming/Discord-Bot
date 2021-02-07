@@ -12,5 +12,5 @@ class Inspire(commands.Cog):
         """ Become someone who is inspired """
         inspiration = inspirobot.generate()
         embed = discord.Embed(url=inspiration.url, title = f"Inspiration for {ctx.author.display_name}")
-        embed.set_image(url=inspiration.url)
+        embed.set_image(url=inspiration.url, color=await ctx.embed_color())
         await ctx.send(embed=embed)
