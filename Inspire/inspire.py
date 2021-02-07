@@ -8,7 +8,8 @@ class Inspire(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def inspire(self, ctx: commands.Context, *args):
+    async def inspire(self, ctx: commands.Context):
+        """ Become someone who is inspired """
         inspiration = inspirobot.generate()
         embed = discord.Embed(url=inspiration.url, title = f"Inspiration for {ctx.author.display_name}")
         embed.set_image(url=inspiration.url)
