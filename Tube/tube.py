@@ -77,7 +77,11 @@ class Tube(commands.Cog):
                 last_video = entry
         if last_video and last_video.get("published"):
             newSub["previous"] = last_video["published"]
-        newSub["name"] = feed["feed"]["title"]
+        try:
+            newSub["name"] = feed["feed"]["title"]
+        except KeyError:
+            await ctx.send(f"Error getting channel feed title. Make sure the ID is correct.")
+            return
         subs.append(newSub)
         await self.conf.guild(ctx.guild).subscriptions.set(subs)
         await ctx.send(f"Subscription added: {newSub}")
