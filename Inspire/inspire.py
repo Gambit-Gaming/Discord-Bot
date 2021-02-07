@@ -10,6 +10,9 @@ class Inspire(commands.Cog):
     @commands.command()
     async def inspire(self, ctx: commands.Context):
         """ Become someone who is inspired """
+        if not ctx.channel.permissions_for(ctx.guild.me).embed_links:
+            await ctx.send("They won't let me do that here.")
+            return
         inspiration = inspirobot.generate()
         embed = discord.Embed(url=inspiration.url, title = f"Inspiration for {ctx.author.display_name}", color=await ctx.embed_color())
         embed.set_image(url=inspiration.url)
