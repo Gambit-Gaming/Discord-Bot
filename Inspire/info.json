@@ -1,0 +1,13 @@
+{
+    "author" : ["CrunchBangDev"],
+    "install_msg" : "You've just installed the Inspire cog!",
+    "name" : "Inspire",
+    "short" : "Get inspired",
+    "description" : "Obtains inspiration for you from an API",
+    "required_cogs": {},
+    "requirements": ["insprio"],
+    "min_bot_version": "3.1.8",
+    "max_bot_version": "0.0.0",
+    "tags": [],
+    "type": "COG"
+}

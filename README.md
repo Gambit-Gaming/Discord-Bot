@@ -81,3 +81,17 @@ Posts in a channel every time a new video is added to a YouTube channel.
 ### Credits
 
 Thanks to [Sinbad](https://github.com/mikeshardmind) for the [RSS cog](https://github.com/mikeshardmind/SinbadCogs/tree/v3/rss) I based this on.
+
+## Inspire
+
+Obtains inspiration for you from an API. This is entirely normal and not sad.
+
+### Commands
+
+| Command       | Description |
+| ------------- | ----------- |
+| `inspire`     | Gain inspiration |
+
+### Credits
+
+This cog uses the brilliant [InspiroBot API](https://inspirobot.me).
