@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import inspirobot
 from redbot.core import commands
