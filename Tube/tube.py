@@ -24,7 +24,7 @@ UNIQUE_ID = 0x547562756c6172
 
 TIME_DEFAULT = "1970-01-01T00:00:00+00:00"
 # Time tuple for use with time.mktime()
-TIME_TUPLE = (*(int(x) for x in re.split("-|T|:|\+", TIME_DEFAULT)), 0)
+TIME_TUPLE = (*(int(x) for x in re.split(r"-|T|:|\+", TIME_DEFAULT)), 0)
 
 
 class Tube(commands.Cog):
