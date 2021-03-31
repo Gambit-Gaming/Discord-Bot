@@ -243,7 +243,7 @@ class Bio(commands.Cog):
                     memberName = ctx.guild.get_member(int(member)).display_name
                 except:
                     continue
-                embed.add_field(name=username,
-                                value="\nDisplay Name: ".join(memberName),
+                embed.add_field(name="".join(username),
+                                value=f"\nDisplay Name: {memberName}",
                                 inline=False)
         await ctx.send(embed=embed)
