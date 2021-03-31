@@ -208,3 +208,34 @@ class Bio(commands.Cog):
                                 value="\n".join(values),
                                 inline=False)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def bionamesearch(self, ctx: commands.Context, *args):
+        """Find field values across all users
+        
+        Examples:
+        Search for a single field 'foo'
+        `[p]biosearch foo`
+        
+        Search for multiple fields 'foo', 'bar', and 'long name field'
+        `[p]biosearch foo bar 'long name field'`
+        """
+        argsLower = [x.lower() for x in args]
+        embed = discord.Embed()
+        embed.title = "Bio Name Search"
+        for member, conf in (await self.conf.all_users()).items():
+            memberBio = conf.get("bio")
+            if len(args) > 1:
+                values = [f"{x}: {y}" for x,y in memberBio.items() if x.lower() in argsLower]
+            else:
+                values = [y for x,y in memberBio.items() if x.lower() in argsLower]
+            if len(values):
+                try:
+                    memberName = ctx.guild.get_member(int(member)).display_name
+                except:
+                    continue
+                embed.add_field(name=memberName,
+                                value="\n".join(values),
+                                inline=False)
+        await ctx.send(embed=embed)
