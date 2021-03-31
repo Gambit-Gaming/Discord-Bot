@@ -211,15 +211,15 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def bionamesearch(self, ctx: commands.Context, *args):
-        """Find field values across all users
+    async def namesearch(self, ctx: commands.Context, *args):
+        """Find a user's Discord display name via a field and value
         
         Examples:
-        Search for a single field 'foo' (Same functionality as biosearch)
-        `[p]bionamesearch foo`
+        Search for a single user's display name based on field 'foofield' and value 'foousername'
+        `[p]namesearch foofield foousername`
         
-        Search for player(s) based on field and field value
-        `[p]bionamesearch foofield foousername barusername
+        Search for multiple user's display names
+        `[p]namesearch foofield foousername "bar long username"
         """
         argsLower = [x.lower() for x in args]
 
@@ -230,7 +230,7 @@ class Bio(commands.Cog):
             usernames = argsLower[1:]
 
         embed = discord.Embed()
-        embed.title = "Bio Name Search"
+        embed.title = "Display Name Search"
         for member, conf in (await self.conf.all_users()).items():
             memberBio = conf.get("bio")
             if len(args) > 1:
