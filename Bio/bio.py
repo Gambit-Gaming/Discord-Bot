@@ -87,7 +87,7 @@ class Bio(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def bio(self, ctx: commands.Context, userOrField: Optional[str] = None, *fields):
-        """Display and modify your bio or view someone else's bio
+        """This is totally test code
         
         Examples:
         Display your own bio
