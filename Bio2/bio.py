@@ -223,7 +223,9 @@ class Bio(commands.Cog):
         """
         argsLower = [x.lower() for x in args]
         field = argsLower[1]
-        usernames = argsLower[2:]
+
+        if(len(args) > 1):
+            usernames = argsLower[2:]
 
         embed = discord.Embed()
         embed.title = "Bio Name Search"
@@ -239,7 +241,7 @@ class Bio(commands.Cog):
                 except:
                     continue
                 embed.add_field(name=memberName,
-                                #value="\n".join(str(memberBio)),
-                                value="\n".join(values),
+                                value="\n".join(str(memberBio)),
+                                #value="\n".join(values),
                                 inline=False)
         await ctx.send(embed=embed)
