@@ -239,7 +239,7 @@ class Bio(commands.Cog):
                 except:
                     continue
                 embed.add_field(name=memberName,
-                                value="\n".join(str(memberBio)),
-                                #value="\n".join(values),
+                                #value="\n".join(str(memberBio)),
+                                value="\n".join(values),
                                 inline=False)
         await ctx.send(embed=embed)
