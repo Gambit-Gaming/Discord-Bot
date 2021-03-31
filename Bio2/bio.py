@@ -234,7 +234,7 @@ class Bio(commands.Cog):
         for member, conf in (await self.conf.all_users()).items():
             memberBio = conf.get("bio")
             if len(args) > 1:
-                username = [y for x,y in memberBio.items() if x.lower() == field and y.lower in usernames]
+                username = [y for x,y in memberBio.items() if x.lower() == field and y.lower() in usernames]
             else:
                 embed.add_field(name="Error", value="You must include a field and a value")
                 break
