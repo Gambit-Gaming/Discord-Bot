@@ -234,16 +234,16 @@ class Bio(commands.Cog):
         for member, conf in (await self.conf.all_users()).items():
             memberBio = conf.get("bio")
             if len(args) > 1:
-                values = [f"{x}: {y}" for x,y in memberBio.items() if x.lower() in argsLower]
+                username = [y for x,y in memberBio.items() if x.lower() in field and y.lower in usernames]
             else:
-                values = [y for x,y in memberBio.items() if x.lower() in argsLower]
-            if len(values):
+                embed.add_field(value="You must include a field and a value")
+                break
+            if len(username):
                 try:
                     memberName = ctx.guild.get_member(int(member)).display_name
                 except:
                     continue
-                embed.add_field(name=memberName,
-                                value="\n".join(str(memberBio)),
-                                #value="\n".join(values),
+                embed.add_field(name=username,
+                                value="\nDisplay Name: ".join(memberName),
                                 inline=False)
         await ctx.send(embed=embed)
