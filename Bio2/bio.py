@@ -222,9 +222,10 @@ class Bio(commands.Cog):
         `[p]bionamesearch foofield foousername barusername
         """
         argsLower = [x.lower() for x in args]
-        field = argsLower[1]
+        if(len(argsLower) > 0):
+            field = argsLower[1]
 
-        if(len(args) > 1):
+        if(len(argsLower) > 1):
             usernames = argsLower[2:]
 
         embed = discord.Embed()
