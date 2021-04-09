@@ -16,9 +16,9 @@ UNIQUE_ID = 0x62696F68617A61726400
 
 
 class Bio(commands.Cog):
-    """Add information to your player bio and lookup information others have shared.
+    """Set profile information, such as in-game aliases and search other member's profiles.
     
-    See `[p]help bio` for detailed usage informaiton."""
+    See `[p]help profile` for detailed command informaiton."""
     def __init__(self, bot: bot.Red, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bot = bot
@@ -28,40 +28,38 @@ class Bio(commands.Cog):
 
     @commands.group(autohelp=False)
     @commands.guild_only()
-    async def biofields(self, ctx: commands.Context):
-        """List the available bio fields
+    async def pfields(self, ctx: commands.Context):
+        """List the available profile game fields.
         
-        Users will only be able to set a field in their bio if it has been added to this list"""
+        Members may set information for these game fields."""
         if ctx.invoked_subcommand is not None:
             return
         bioFields = await self.conf.guild(ctx.guild).biofields()
         if len(bioFields):
-            await ctx.send("Bio fields available:\n"
+            await ctx.send("Profile game fields available:\n"
                             "\n".join(bioFields))
         else:
-            await ctx.send("No bio fields available. Alert an admin!")
+            await ctx.send("There are currently no setup game fields for this Discord.")
 
     @biofields.command(name="add")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def add_field(self, ctx: commands.Context, *, argField: str):
-        """Add fields to the list available for adding to bios"""
+        """Add game fields to this Discord server."""
         bioFields = await self.conf.guild(ctx.guild).biofields()
         for field in bioFields:
             if field.lower() == argField.lower():
-                await ctx.send(f"Field '{field}' already exists!")
+                await ctx.send(f"Game field '{field}' already exists.")
                 return
         bioFields.append(argField)
         await self.conf.guild(ctx.guild).biofields.set(bioFields)
-        await ctx.send(f"Field '{argField}' has been added")
+        await ctx.send(f"Game field '{argField}' has been added.")
 
     @biofields.command(name="remove")
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def remove_field(self, ctx:commands.Context, *args):
-        """Remove fields from bios and make them unavailable (DANGER!)
-        
-        USE WITH CAUTION: There is no way to restore deleted fields!"""
+        """Remove game fields from this Discord server."""
         bioFields = await self.conf.guild(ctx.guild).biofields()
         argField = " ".join(args)
         try:
@@ -72,50 +70,46 @@ class Bio(commands.Cog):
                     bioFields.remove(field)
                     break
             else:
-                await ctx.send(f"No field named '{argField}'")
+                await ctx.send(f"No game field named '{argField}'")
                 return
         await self.conf.guild(ctx.guild).biofields.set(bioFields)
         count = 0
         for member, conf in (await self.conf.all_users()).items():
-            memberBio = conf.get("bio")
+            memberBio = conf.get("profile")
             if argField in memberBio.keys():
                 del memberBio[argField]
                 await self.conf.user(self.bot.get_user(member)).bio.set(memberBio)
                 count += 1
-        await ctx.send(f"Removed field '{argField}' from {count} bios")
+        await ctx.send(f"Removed field '{argField}' from {count} profiles.")
 
     @commands.command()
     @commands.guild_only()
     async def bio(self, ctx: commands.Context, userOrField: Optional[str] = None, *fields):
-        """Display and modify your bio or view someone else's bio
+        """Display and modify your profile or view another member's profile.
         
         Examples:
-        Display your own bio
-        `[p]bio`
+        Display your own profile:
+        `[p]profile`
         
-        Display your friend's bio
-        `[p]bio @friend`
+        Display a member's profile:
+        `[p]profile @DiscordUser`
         
-        Display the 'foo' and 'bar' fields on your friend's bio
-        `[p]bio @friend foo bar`
+        Display the 'Ark' and 'Ark-Tribe' game fields on a member's profile:
+        `[p]profile @DiscordUser Ark Ark-Tribe`
+          
+        Set the 'Ark' game field on your profile to your name, 'John Doe'
+        `[p]profile Ark 'John Doe'`
         
-        Note that fields with spaces in the name must be in quotes
-        `[p]bio @friend 'Three Word Field'`
-        
-        Set the 'foo' field on your bio to 'bar'
-        `[p]bio foo bar`
-        
-        Remove the 'foo' field from your bio
-        `[p]bio foo`
+        Remove the 'Ark' game field from your bio
+        `[p]profile Ark`
         
         Other commands to look into:
-        `[p]help biofields`
-        `[p]help biosearch`
-        `[p]help bioreset`
+        `[p]help psearch`
+        `[p]help plist`
         """
         await self._bio(ctx, userOrField, *fields)
 
-    async def _bio(self, ctx: commands.Context, user: Optional[str] = None, *args):
+    async def _profile(self, ctx: commands.Context, user: Optional[str] = None, *args):
         bioFields = await self.conf.guild(ctx.guild).biofields()
         key = None
         if re.search(r'<@!\d+>', str(user)):
@@ -180,7 +174,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def biosearch(self, ctx: commands.Context, *args):
+    async def plist(self, ctx: commands.Context, *args):
         """Find field values across all users
         
         Examples:
@@ -192,7 +186,7 @@ class Bio(commands.Cog):
         """
         argsLower = [x.lower() for x in args]
         embed = discord.Embed()
-        embed.title = "Bio Search"
+        embed.title = "Game List:"
         for member, conf in (await self.conf.all_users()).items():
             memberBio = conf.get("bio")
             if len(args) > 1:
@@ -211,7 +205,7 @@ class Bio(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def namesearch(self, ctx: commands.Context, *args):
+    async def psearch(self, ctx: commands.Context, *args):
         """Find a user's Discord display name via a field and value
         
         Examples:
@@ -230,7 +224,7 @@ class Bio(commands.Cog):
             usernames = argsLower[1:]
 
         embed = discord.Embed()
-        embed.title = "Display Name Search"
+        embed.title = "Name Search:"
         for member, conf in (await self.conf.all_users()).items():
             memberBio = conf.get("bio")
             if len(args) > 1:
@@ -244,6 +238,6 @@ class Bio(commands.Cog):
                 except:
                     continue
                 embed.add_field(name="".join(username),
-                                value=f"\nDisplay Name: {memberName}",
+                                value=f"\nDiscord Account: {memberName}",
                                 inline=False)
         await ctx.send(embed=embed)
