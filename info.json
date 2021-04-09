@@ -1,9 +1,9 @@
 {
     "author" : ["CrunchBangDev"],
-    "install_msg" : "Thank you for choosing CrunchBangDev Cogs to help sate your terrible thirst for cogs.\nPlease note that, despite convention, all cog names in this repo are TitleCase.",
-    "name" : "CBD-Cogs",
-    "short" : "Got cogs?",
-    "description" : "Put this in your bot and smoke it",
+    "install_msg" : "This is an edited profile/bio cog created CrunchBangDev edited by Haub100 and used by Gambit Gaming.",
+    "name" : "Gambit-Gaming Cogs",
+    "short" : "GG Cogs",
+    "description" : "",
     "min_python_version": [3, 7, 2],
 	"tags": []
 }
